@@ -26,7 +26,7 @@ A Flask app that lets you browse Star Wars starships by manufacturer, using data
 2. Create and activate a virtual environment:
 
    ```bash
-   python3 -m venv venv
+   python -m venv venv
    source venv/bin/activate
    ```
 
@@ -39,7 +39,7 @@ A Flask app that lets you browse Star Wars starships by manufacturer, using data
 4. Run the app:
 
    ```bash
-   python3 app.py
+   python app.py
    ```
 
 5. Open http://127.0.0.1:5000 in your browser
