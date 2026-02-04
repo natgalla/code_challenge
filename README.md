@@ -8,6 +8,23 @@ A Flask app that lets you browse Star Wars starships by manufacturer, using data
 - Browse all starships or filter by manufacturer
 - Data cached in SQLite database on first startup
 
+## Project Structure
+
+```
+code_challenge/
+├── app/
+│   ├── __init__.py      # App factory
+│   ├── extensions.py    # Flask extensions (db, login_manager)
+│   ├── models.py        # Database models
+│   ├── routes.py        # Route handlers
+│   ├── services.py      # SWAPI data fetching
+│   └── templates/       # Jinja templates
+├── config.py            # Configuration
+├── requirements.txt
+├── run.py               # Entry point
+└── README.md
+```
+
 ## Getting Started
 
 ### Prerequisites
@@ -35,7 +52,7 @@ A Flask app that lets you browse Star Wars starships by manufacturer, using data
 
 4. Run the app:
    ```bash
-   python app.py
+   python run.py
    ```
 
 5. Open http://127.0.0.1:5000 in your browser
