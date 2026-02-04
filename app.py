@@ -5,6 +5,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
+###############
+# BOILERPLATE #
+###############
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret-key-change-in-production'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -12,6 +17,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+
+############
+# DB SETUP #
+############
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -126,6 +136,10 @@ def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 
+#############
+# ENDPOINTS #
+#############
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -194,6 +208,9 @@ def dashboard():
     manufacturers = db.session.execute(db.select(Manufacturer).order_by(Manufacturer.name)).scalars().all()
     return render_template('dashboard.html', manufacturers=manufacturers, starships=starships, selected_manufacturer=selected_manufacturer)
 
+########
+# INIT #
+########
 
 with app.app_context():
     db.create_all()
