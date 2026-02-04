@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+  </head>
+  <body>
+    <h1>Dashboard</h1>
+    <p>Welcome, {{ current_user.username }}!</p>
+    <form method="POST">
+      <p>
+        <label for="manufacturer">Choose a manufacturer:</label>
+      </p>
+      <p>
+        <select name="manufacturer" id="manufacturer">
+          {% for manufacturer in manufacturers %}
+          <option value="{{ manufacturer.name }}">
+            {{ manufacturer.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </p>
+      <p>
+        <button type="submit">Search</button>
+      </p>
+    </form>
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+  </body>
+</html>
