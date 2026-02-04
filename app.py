@@ -1,4 +1,3 @@
-import json
 import requests
 
 from flask import Flask, render_template, redirect, url_for, request, flash
