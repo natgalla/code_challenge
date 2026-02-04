@@ -112,7 +112,9 @@ def fetch_starship_data():
                         # Fix typo
                         if name == 'Cyngus Spaceworks':
                             name = 'Cygnus Spaceworks'
-                        manufacturer = db.session.execute(db.select(Manufacturer).filter_by(name=name)).scalar_one_or_none()
+                        manufacturer = db.session.execute(
+                            db.select(Manufacturer).filter_by(name=name)
+                        ).scalar_one_or_none()
                         if not manufacturer:
                             manufacturer = Manufacturer(name=name)
                             db.session.add(manufacturer)
@@ -206,7 +208,13 @@ def dashboard():
         starships = manufacturer.starships if manufacturer else []
 
     manufacturers = db.session.execute(db.select(Manufacturer).order_by(Manufacturer.name)).scalars().all()
-    return render_template('dashboard.html', manufacturers=manufacturers, starships=starships, selected_manufacturer=selected_manufacturer)
+    return render_template(
+        'dashboard.html',
+        manufacturers=manufacturers,
+        starships=starships,
+        selected_manufacturer=selected_manufacturer
+    )
+
 
 ########
 # INIT #
