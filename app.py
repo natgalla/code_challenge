@@ -13,8 +13,6 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-SWAPI_BASE_URL = "https://www.swapi.tech/api/"
-
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -63,7 +61,7 @@ def fetch_starship_data():
     """Fetch all starships and manufacturers from SWAPI and store in DB.
     Ideally a job would periodically update this to make sure data is 1:1 with SWAPI"""
 
-    endpoint = SWAPI_BASE_URL + 'starships?expanded=true'
+    endpoint = "https://www.swapi.tech/api/starships?expanded=true"
 
     try:
         while endpoint:
