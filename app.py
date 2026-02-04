@@ -73,7 +73,7 @@ def fetch_starship_data():
                     props = record.get('properties', {})
                     uid = record.get('uid')
 
-                    if Starship.query.filter_by(uid=uid).first():
+                    if db.session.execute(db.select(Starship).filter_by(uid=uid)).scalar_one_or_none():
                         continue
 
                     starship = Starship(
@@ -94,27 +94,36 @@ def fetch_starship_data():
                     )
 
                     manufacturer_str = props.get('manufacturer', '')
+                    # Split by comma or slash
+                    manufacturer_str = manufacturer_str.replace('/', ',')
                     for name in [m.strip() for m in manufacturer_str.split(',')]:
-                        if name:
-                            manufacturer = Manufacturer.query.filter_by(name=name).first()
-                            if not manufacturer:
-                                manufacturer = Manufacturer(name=name)
-                                db.session.add(manufacturer)
-                            starship.manufacturers.append(manufacturer)
+                        # Skip garbage data
+                        if not name or name.lower() in ['inc', 'inc.']:
+                            continue
+                        # Fix typo
+                        if name == 'Cyngus Spaceworks':
+                            name = 'Cygnus Spaceworks'
+                        manufacturer = db.session.execute(db.select(Manufacturer).filter_by(name=name)).scalar_one_or_none()
+                        if not manufacturer:
+                            manufacturer = Manufacturer(name=name)
+                            db.session.add(manufacturer)
+                        starship.manufacturers.append(manufacturer)
 
                     db.session.add(starship)
                 endpoint = r_json.get('next')
             else:
                 break
         db.session.commit()
-        print(f'Loaded {Starship.query.count()} starships and {Manufacturer.query.count()} manufacturers into DB')
+        starship_count = db.session.execute(db.select(db.func.count()).select_from(Starship)).scalar()
+        manufacturer_count = db.session.execute(db.select(db.func.count()).select_from(Manufacturer)).scalar()
+        print(f'Loaded {starship_count} starships and {manufacturer_count} manufacturers into DB')
     except Exception as e:
         print(f'An API error occurred: {e}')
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 @app.route('/')
@@ -128,7 +137,7 @@ def register():
         username = request.form['username']
         password = request.form['password']
 
-        if User.query.filter_by(username=username).first():
+        if db.session.execute(db.select(User).filter_by(username=username)).scalar_one_or_none():
             flash('Username already exists')
             return redirect(url_for('register'))
 
@@ -148,7 +157,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        user = db.session.execute(db.select(User).filter_by(username=username)).scalar_one_or_none()
 
         if user and user.check_password(password):
             login_user(user)
@@ -169,16 +178,27 @@ def logout():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
+    selected_manufacturer = 'all'
+
     if request.method == 'POST':
-        manufacturer = request.form['manufacturer']
-        print(manufacturer)
-    manufacturers = Manufacturer.query.order_by(Manufacturer.name).all()
-    return render_template('dashboard.html', manufacturers=manufacturers)
+        selected_manufacturer = request.form['manufacturer']
+
+    if selected_manufacturer == 'all':
+        starships = db.session.execute(db.select(Starship).order_by(Starship.name)).scalars().all()
+    else:
+        manufacturer = db.session.execute(
+            db.select(Manufacturer).filter_by(name=selected_manufacturer)
+        ).scalar_one_or_none()
+        starships = manufacturer.starships if manufacturer else []
+
+    manufacturers = db.session.execute(db.select(Manufacturer).order_by(Manufacturer.name)).scalars().all()
+    return render_template('dashboard.html', manufacturers=manufacturers, starships=starships, selected_manufacturer=selected_manufacturer)
 
 
 with app.app_context():
     db.create_all()
-    if Starship.query.count() == 0:
+    starship_count = db.session.execute(db.select(db.func.count()).select_from(Starship)).scalar()
+    if starship_count == 0:
         print('No starships in DB, fetching from SWAPI...')
         fetch_starship_data()
 
