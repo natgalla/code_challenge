@@ -1,59 +1,55 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
-  </head>
-  <body>
-    <h1>Dashboard</h1>
-    <p>Welcome, {{ current_user.username }}!</p>
-    <form method="POST">
-      <p>
-        <label for="manufacturer">Choose a manufacturer:</label>
-      </p>
-      <p>
-        <select name="manufacturer" id="manufacturer" onchange="this.form.submit()">
-          <option value="all" {% if not selected_manufacturer or selected_manufacturer == 'all' %}selected{% endif %}>All</option>
-          {% for manufacturer in manufacturers %}
-          <option value="{{ manufacturer.name }}" {% if manufacturer.name == selected_manufacturer %}selected{% endif %}>
-            {{ manufacturer.name }}
-          </option>
-          {% endfor %}
-        </select>
-      </p>
-    </form>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Starship Search</title>
+    </head>
+    <body>
+        <h1>Starship Search</h1>
+        <p>Welcome, {{ current_user.username }}!</p>
+        <form method="POST">
+            <label for="manufacturer">Choose a manufacturer:</label>
+            <select name="manufacturer" id="manufacturer" onchange="this.form.submit()">
+                <option value="all" {% if not selected_manufacturer or selected_manufacturer == 'all' %}selected{% endif %}>All</option>
+                {% for manufacturer in manufacturers %}
+                <option value="{{ manufacturer.name }}" {% if manufacturer.name == selected_manufacturer %}selected{% endif %}>
+                {{ manufacturer.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
 
-    {% if starships %}
-    <h2>Starships</h2>
-    <table border="1">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Model</th>
-          <th>Starship Class</th>
-          <th>Crew</th>
-          <th>Passengers</th>
-          <th>Length</th>
-          <th>Hyperdrive Rating</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for starship in starships %}
-        <tr>
-          <td>{{ starship.name }}</td>
-          <td>{{ starship.model }}</td>
-          <td>{{ starship.starship_class }}</td>
-          <td>{{ starship.crew }}</td>
-          <td>{{ starship.passengers }}</td>
-          <td>{{ starship.length }}</td>
-          <td>{{ starship.hyperdrive_rating }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
+        {% if starships %}
+        <h2>Starships</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Model</th>
+                    <th>Starship Class</th>
+                    <th>Crew</th>
+                    <th>Passengers</th>
+                    <th>Length</th>
+                    <th>Hyperdrive Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for starship in starships %}
+            <tr>
+                <td>{{ starship.name }}</td>
+                <td>{{ starship.model }}</td>
+                <td>{{ starship.starship_class }}</td>
+                <td>{{ starship.crew }}</td>
+                <td>{{ starship.passengers }}</td>
+                <td>{{ starship.length }}</td>
+                <td>{{ starship.hyperdrive_rating }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
 
-    <p><a href="{{ url_for('logout') }}">Logout</a></p>
-  </body>
+        <p><a href="{{ url_for('logout') }}">Logout</a></p>
+    </body>
 </html>

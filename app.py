@@ -61,7 +61,9 @@ class Starship(db.Model):
 
 
 def fetch_starship_data():
-    """Fetch all starships and manufacturers from SWAPI and store in DB."""
+    """Fetch all starships and manufacturers from SWAPI and store in DB.
+    Ideally a job would periodically update this to make sure data is 1:1 with SWAPI"""
+
     endpoint = SWAPI_BASE_URL + 'starships?expanded=true'
 
     try:
@@ -118,6 +120,7 @@ def fetch_starship_data():
         manufacturer_count = db.session.execute(db.select(db.func.count()).select_from(Manufacturer)).scalar()
         print(f'Loaded {starship_count} starships and {manufacturer_count} manufacturers into DB')
     except Exception as e:
+        # generic exception handling; with more testing should be made more explicit to catch specific errors
         print(f'An API error occurred: {e}')
 
 
