@@ -35,20 +35,21 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-
+# intermediary table for many to many relationship
 starship_manufacturers = db.Table(
     'starship_manufacturers',
     db.Column('starship_id', db.Integer, db.ForeignKey('starship.id'), primary_key=True),
     db.Column('manufacturer_id', db.Integer, db.ForeignKey('manufacturer.id'), primary_key=True)
 )
 
-
+# api is not searchable by manufacturer
+# starships may have more than one manufacturer, so we need a separate manufacturer model
 class Manufacturer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(256), unique=True, nullable=False)
     starships = db.relationship('Starship', secondary=starship_manufacturers, back_populates='manufacturers')
 
-
+# cache starship data to prevent repetitive api calls (slow and error prone)
 class Starship(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(20), unique=True, nullable=False)
@@ -70,7 +71,7 @@ class Starship(db.Model):
 
 def fetch_starship_data():
     """Fetch all starships and manufacturers from SWAPI and store in DB.
-    Ideally a job would periodically update this to make sure data is 1:1 with SWAPI"""
+    Ideally a job would periodically update this to make sure data remains 1:1 with SWAPI"""
 
     endpoint = "https://www.swapi.tech/api/starships?expanded=true"
 
@@ -102,8 +103,9 @@ def fetch_starship_data():
                         starship_class=props.get('starship_class'),
                         url=props.get('url')
                     )
-
+                    
                     manufacturer_str = props.get('manufacturer', '')
+                    # Multiple manufacturers may be listed for the same starship separated by ',' or '/'
                     # Split by comma or slash
                     manufacturer_str = manufacturer_str.replace('/', ',')
                     for name in [m.strip() for m in manufacturer_str.split(',')]:
