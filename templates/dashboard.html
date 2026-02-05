@@ -21,12 +21,13 @@
         </form>
 
         {% if starships %}
-        <h2>Starships</h2>
+        <h2>Starships{% if selected_manufacturer and selected_manufacturer != 'all' %} Manufactured by {{selected_manufacturer}} {% endif %}</h2>
         <table border="1">
             <thead>
                 <tr>
                     <th>Name</th>
                     <th>Model</th>
+                    <th>{% if selected_manufacturer and selected_manufacturer != 'all' %}Other manufacturer(s){% else %}Manufacturer(s){% endif %}</th>
                     <th>Starship Class</th>
                     <th>Crew</th>
                     <th>Passengers</th>
@@ -39,6 +40,7 @@
             <tr>
                 <td>{{ starship.name }}</td>
                 <td>{{ starship.model }}</td>
+                <td>{% if selected_manufacturer and selected_manufacturer != 'all' %}{{ starship.manufacturers | rejectattr('name', 'equalto', selected_manufacturer) | map(attribute='name') | join(', ') }}{% else %}{{ starship.manufacturers | map(attribute='name') | join(', ') }}{% endif %}</td>
                 <td>{{ starship.starship_class }}</td>
                 <td>{{ starship.crew }}</td>
                 <td>{{ starship.passengers }}</td>

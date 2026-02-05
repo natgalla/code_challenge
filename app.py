@@ -2,6 +2,7 @@ import requests
 
 from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import selectinload
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -107,7 +108,7 @@ def fetch_starship_data():
                     manufacturer_str = manufacturer_str.replace('/', ',')
                     for name in [m.strip() for m in manufacturer_str.split(',')]:
                         # Skip garbage data
-                        if not name or name.lower() in ['inc', 'inc.']:
+                        if not name or name.lower() in ['inc', 'inc.', 'incorporated']:
                             continue
                         # Fix typo
                         if name == 'Cyngus Spaceworks':
@@ -200,10 +201,16 @@ def dashboard():
         selected_manufacturer = request.form['manufacturer']
 
     if selected_manufacturer == 'all':
-        starships = db.session.execute(db.select(Starship).order_by(Starship.name)).scalars().all()
+        starships = db.session.execute(
+            db.select(Starship)
+            .options(selectinload(Starship.manufacturers)) # prevent n+1
+            .order_by(Starship.name)
+        ).scalars().all()
     else:
         manufacturer = db.session.execute(
-            db.select(Manufacturer).filter_by(name=selected_manufacturer)
+            db.select(Manufacturer)
+            .options(selectinload(Manufacturer.starships).selectinload(Starship.manufacturers)) # prevent n+1
+            .filter_by(name=selected_manufacturer)
         ).scalar_one_or_none()
         starships = manufacturer.starships if manufacturer else []
 
