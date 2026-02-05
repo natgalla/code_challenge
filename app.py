@@ -155,7 +155,7 @@ def register():
         password = request.form['password']
 
         if db.session.execute(db.select(User).filter_by(username=username)).scalar_one_or_none():
-            flash('Username already exists')
+            flash('Username already exists', 'error')
             return redirect(url_for('register'))
 
         user = User(username=username)
@@ -163,7 +163,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash('Registration successful')
+        flash('Registration successful', 'success')
         return redirect(url_for('login'))
 
     return render_template('register.html')
@@ -180,7 +180,7 @@ def login():
             login_user(user)
             return redirect(url_for('dashboard'))
 
-        flash('Invalid username or password')
+        flash('Invalid username or password', 'error')
 
     return render_template('login.html')
 
