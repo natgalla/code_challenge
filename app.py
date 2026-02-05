@@ -107,7 +107,7 @@ def fetch_starship_data():
                     # Split by comma or slash
                     manufacturer_str = manufacturer_str.replace('/', ',')
                     for name in [m.strip() for m in manufacturer_str.split(',')]:
-                        # Skip garbage data
+                        # Skip garbage data ('inc' suffix variants causing inconsistencies)
                         if not name or name.lower() in ['inc', 'inc.', 'incorporated']:
                             continue
                         # Fix typo
