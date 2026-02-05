@@ -202,16 +202,18 @@ def dashboard():
     if request.method == 'POST':
         selected_manufacturer = request.form['manufacturer']
 
+    # use selectinload to eager fetch related data and prevent n+1
+    # consider pagination for larger data sets
     if selected_manufacturer == 'all':
         starships = db.session.execute(
             db.select(Starship)
-            .options(selectinload(Starship.manufacturers)) # prevent n+1
+            .options(selectinload(Starship.manufacturers)) 
             .order_by(Starship.name)
         ).scalars().all()
     else:
         manufacturer = db.session.execute(
             db.select(Manufacturer)
-            .options(selectinload(Manufacturer.starships).selectinload(Starship.manufacturers)) # prevent n+1
+            .options(selectinload(Manufacturer.starships).selectinload(Starship.manufacturers)) 
             .filter_by(name=selected_manufacturer)
         ).scalar_one_or_none()
         starships = manufacturer.starships if manufacturer else []
